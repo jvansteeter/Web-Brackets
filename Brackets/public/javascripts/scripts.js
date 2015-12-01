@@ -211,6 +211,33 @@ blogApp.controller('loginControl', function($scope, $window, $http, Credentials)
       });
     };
 
+    $scope.loginFacebook = function()
+    {
+      console.log("login with facebook");
+      var url = "api/auth/facebook";
+      console.log(url);
+      $http.get(url).success(function(data)
+      {
+        console.log("data");
+        if(data.length === 0)
+        {
+          $scope.loginInfo = "Server Error";
+        }
+        else if(data === "Invalid Username")
+          $scope.loginInfo = data;
+        else if(data === "true")
+        {
+          Credentials.setUsername($scope.usernameInput);
+          Credentials.setPassword($scope.passwordInput);
+          $window.location.href = "index.html";
+        }
+        else if(data === "false")
+          $scope.loginInfo = "Invalid Password";
+        else
+          $scope.loginInfo = "Unknown Error";
+      });
+    };
+
     $scope.createUser = function()
     {
       if ($scope.usernameInput === "")
