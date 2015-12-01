@@ -30,7 +30,7 @@ passport.use(new FacebookStrategy(
 {
     clientID: 576848805800238,
     clientSecret: "ad581e993a40c8e36ec050c1e1a3c077",
-    callbackURL: "http://localhost/index.html"
+    callbackURL: "http://ec2-52-27-162-246.us-west-2.compute.amazonaws.com/api/auth/facebook/callback"
 },
 function(accessToken, refreshToken, profile, done) 
 {
