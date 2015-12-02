@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var Entry = mongoose.model('Entry');
 var jwt = require('express-jwt');
 var passport = require('passport');
 
@@ -89,6 +90,35 @@ router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback',
 	passport.authenticate('facebook', { successRedirect: '/index.html',
                                       failureRedirect: '/login.html' }));
+
+//------------------------------------------------------------
+//  Test API for blog, dev only, will be deleted
+//------------------------------------------------------------
+
+router.post('/createNewPost', auth, function (req, res)
+{
+    console.log("creating new post");
+    
+    var newEntry = new Entry();
+    newEntry.author = req.body.author;
+    newEntry.title = req.body.title;
+    newEntry.date = req.body.date;
+    newEntry.tags = req.body.tags;
+    newEntry.body = req.body.body;
+
+    newEntry.save(function(err) 
+    {
+        if (err)
+        	return handleError(err);
+    });
+});
+
+
+
+
+//------------------------------------------------------------
+// End dev API section
+//------------------------------------------------------------
 
 // get all items for the user
 router.get('/api/items', function (req,res) {

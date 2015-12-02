@@ -14,7 +14,13 @@ var userSchema = new mongoose.Schema(
 {
     username: {type: String, index: true, unique: true},
     name: String,
-    password_hash: String
+    password_hash: String,
+    facebook: 
+    {
+        id: String,
+        token: String,
+        name: String,
+    }
 });
 
 // hash the password

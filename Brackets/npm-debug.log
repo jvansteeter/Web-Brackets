@@ -1,9 +1,7 @@
 0 info it worked if it ends with ok
-1 verbose cli [ '/opt/bitnami/nodejs/bin/.node.bin',
-1 verbose cli   '/opt/bitnami/nodejs/bin/npm',
-1 verbose cli   'start' ]
-2 info using npm@2.14.4
-3 info using node@v4.1.1
+1 verbose cli [ '/usr/local/bin/node', '/usr/local/bin/npm', 'start' ]
+2 info using npm@2.14.7
+3 info using node@v4.2.2
 4 verbose run-script [ 'prestart', 'start', 'poststart' ]
 5 info prestart Brackets@0.0.0
 6 info start Brackets@0.0.0
@@ -11,20 +9,20 @@
 8 info Brackets@0.0.0 Failed to exec start script
 9 verbose stack Error: Brackets@0.0.0 start: `node ./bin/www`
 9 verbose stack Exit status 1
-9 verbose stack     at EventEmitter.<anonymous> (/opt/bitnami/nodejs/lib/node_modules/npm/lib/utils/lifecycle.js:214:16)
+9 verbose stack     at EventEmitter.<anonymous> (/usr/local/lib/node_modules/npm/lib/utils/lifecycle.js:214:16)
 9 verbose stack     at emitTwo (events.js:87:13)
 9 verbose stack     at EventEmitter.emit (events.js:172:7)
-9 verbose stack     at ChildProcess.<anonymous> (/opt/bitnami/nodejs/lib/node_modules/npm/lib/utils/spawn.js:24:14)
+9 verbose stack     at ChildProcess.<anonymous> (/usr/local/lib/node_modules/npm/lib/utils/spawn.js:24:14)
 9 verbose stack     at emitTwo (events.js:87:13)
 9 verbose stack     at ChildProcess.emit (events.js:172:7)
-9 verbose stack     at maybeClose (internal/child_process.js:817:16)
+9 verbose stack     at maybeClose (internal/child_process.js:818:16)
 9 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:211:5)
 10 verbose pkgid Brackets@0.0.0
-11 verbose cwd /home/bitnami/Web-Brackets/Brackets
-12 error Linux 3.13.0-65-generic
-13 error argv "/opt/bitnami/nodejs/bin/.node.bin" "/opt/bitnami/nodejs/bin/npm" "start"
-14 error node v4.1.1
-15 error npm  v2.14.4
+11 verbose cwd /home/jvs/Documents/CS360/Web-Brackets/Brackets
+12 error Linux 4.0.4-301.fc22.x86_64
+13 error argv "/usr/local/bin/node" "/usr/local/bin/npm" "start"
+14 error node v4.2.2
+15 error npm  v2.14.7
 16 error code ELIFECYCLE
 17 error Brackets@0.0.0 start: `node ./bin/www`
 17 error Exit status 1

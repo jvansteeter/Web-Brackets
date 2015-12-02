@@ -25,6 +25,71 @@ blogApp.service('Credentials', function($window)
     return credService;
 });
 
+blogApp.factory('auth', ['$http', '$window', function($http, $window)
+{
+  var auth = {};
+
+  auth.saveToken = function (token)
+  {
+    $window.localStorage['brackets-token'] = token;
+  };
+
+  auth.getToken = function ()
+  {
+    return $window.localStorage['brackets-token'];
+  };
+
+  auth.isLoggedIn = function()
+  {
+    var token = auth.getToken();
+
+    if(token)
+    {
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+      return payload.exp > Date.now() / 1000;
+    }
+    else
+    {
+      return false;
+    }
+  };
+
+  auth.currentUser = function()
+  {
+    if(auth.isLoggedIn())
+    {
+      var token = auth.getToken();
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+      return payload.username;
+    }
+  };
+
+  auth.register = function(user)
+  {
+    return $http.post('api/user/register', user).success(function(data)
+    {
+      auth.saveToken(data.token);
+    });
+  };
+
+  auth.login = function(user)
+  {
+    return $http.post('/api/users/login', user).success(function(data)
+    {
+      auth.saveToken(data.token);
+    });
+  };
+
+  auth.logOut = function()
+  {
+    $window.localStorage.removeItem('brackets-token');
+  };
+
+  return auth;
+}]);
+
 blogApp.controller('headerControl', function($scope, Credentials) 
 {
   var userName = Credentials.getUsername();
@@ -163,7 +228,7 @@ blogApp.controller('myPostsControl', function($scope, $window, $http, Credential
   };
 });
 
-blogApp.controller('loginControl', function($scope, $window, $http, Credentials) 
+blogApp.controller('loginControl', function($scope, $window, $http, Credentials, auth) 
 {
     $scope.usernameInput = "";
     $scope.passwordInput = "";
@@ -185,29 +250,14 @@ blogApp.controller('loginControl', function($scope, $window, $http, Credentials)
 
       var url = "api/users/login";
       console.log(url);
-      var data =  {
+      var user =  {
                   "username" : $scope.usernameInput,
                   "password" : $scope.passwordInput
                 };
-      $http.post(url, data).success(function(data)
+      auth.login(user).success(function(data)
       {
-        console.log(data);
-        if(data.length === 0)
-        {
-          $scope.loginInfo = "Server Error";
-        }
-        else if(data === "Invalid Username")
-          $scope.loginInfo = data;
-        else if(data === "true")
-        {
-          Credentials.setUsername($scope.usernameInput);
-          Credentials.setPassword($scope.passwordInput);
-          $window.location.href = "index.html";
-        }
-        else if(data === "false")
-          $scope.loginInfo = "Invalid Password";
-        else
-          $scope.loginInfo = "Unknown Error";
+        console.log("Successfully logged in");
+        $window.location.href = "index.html";
       });
     };
 
@@ -294,12 +344,13 @@ blogApp.controller('newPostControl', function($scope, $window, $http, Credential
 
     var tagList = $scope.tags.split(" ");
     var data =  {
+                  "author" : Credentials.getUsername(),
                   "title" : $scope.postTitle,
                   "date" : time.getTime(),
                   "tags" : tagList,
                   "body" : $scope.postBody
                 };
-    var url = "createNewPost?u=" + Credentials.getUsername() + "&p=" + Credentials.getPassword();
+    var url = "api/createNewPost";
     $http.post(url, data).success(function(response)
     {
       console.log("post=" + response);

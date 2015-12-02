@@ -12,6 +12,7 @@ var db = mongoose.connect('mongodb://localhost/brackets');
 
 // setup models and configurations
 require('./models/user');
+require('./models/entry');
 require('./config/passport');
 
 // setup routes
