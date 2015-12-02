@@ -318,7 +318,7 @@ blogApp.controller('loginControl', function($scope, $window, $http, Credentials,
     }    
 });
 
-blogApp.controller('newPostControl', function($scope, $window, $http, Credentials) 
+blogApp.controller('newPostControl', function($scope, $window, $http, Credentials, auth) 
 {
   $scope.postTitle = "";
   $scope.tags = "";
@@ -351,7 +351,7 @@ blogApp.controller('newPostControl', function($scope, $window, $http, Credential
                   "body" : $scope.postBody
                 };
     var url = "api/createNewPost";
-    $http.post(url, data).success(function(response)
+    $http.post(url, data, { headers: { Authorization: 'Bearer '+auth.getToken() }} ).success(function(response)
     {
       console.log("post=" + response);
       $window.location.href = "index.html";

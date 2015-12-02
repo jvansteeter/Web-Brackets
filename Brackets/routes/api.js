@@ -3,10 +3,11 @@ var router = express.Router();
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var Entry = mongoose.model('Entry');
+var Secret = mongoose.model('Secret');
 var jwt = require('express-jwt');
 var passport = require('passport');
 
-var SECRET = '\x1f\x1e1\x8a\x8djO\x9e\xe4\xcb\x9d`\x13\x02\xfb+\xbb\x89q"F\x8a\xe0a';
+var SECRET = Secret.local();
 var auth = jwt({secret: SECRET, userProperty: 'payload'});
 
 //
@@ -109,11 +110,32 @@ router.post('/createNewPost', auth, function (req, res)
     newEntry.save(function(err) 
     {
         if (err)
-        	return handleError(err);
+        {
+        	res.sendStatus("500");
+			return;
+        }
+        res.end("OK");
     });
 });
 
+router.post('/createSecret', function (req, res)
+{
+	console.log("creating new secret");
 
+	var newSecret = new Secret();
+	newSecret._id = req.body._id;
+	newSecret.secret = req.body.secret;
+
+	newSecret.save(function(err)
+	{
+		if (err)
+		{
+			res.sendStatus("500");
+			return;
+		}
+		res.end("OK");
+	});
+});
 
 
 //------------------------------------------------------------
