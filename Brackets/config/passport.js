@@ -76,6 +76,7 @@ function(token, refreshToken, profile, done)
                 newUser.facebook.id    = profile._json.id; // set the users facebook id                   
                 newUser.facebook.token = token; // we will save the token that facebook provides to the user                    
                 newUser.facebook.name  = profile._json.name; // look at the passport user profile to see how names are returned
+                newUser.username = profile._json.name; // also make the profile name their username for Brackets
             
                 // save our user to the database
                 newUser.save(function(err) 

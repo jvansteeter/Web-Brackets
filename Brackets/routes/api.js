@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var Tournament = mongoose.model('Tournament');
 var Entry = mongoose.model('Entry');
 var Secret = mongoose.model('Secret');
 var jwt = require('express-jwt');
@@ -97,6 +98,25 @@ router.get('/auth/login/facebook/callback',
 //------------------------------------------------------------
 //  Test API for blog, dev only, will be deleted
 //------------------------------------------------------------
+router.get('/testTournament', function (req, res)
+{
+    console.log("TESTING TOURNAMENT CREATION");
+
+    var newTournament = new Tournament();
+    var date = new Date();
+    newTournament.date = date.getMonth() + "-" + date.getDate() + "-" + date.getFullYear() +
+        " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    newTournament.begun = false;
+    newTournament.save(function(err)
+    {
+        if(err)
+            throw err;
+        res.end("OK");
+    });
+
+    newTournament.startTournament();
+});
+
 
 router.post('/createNewPost', auth, function (req, res)
 {

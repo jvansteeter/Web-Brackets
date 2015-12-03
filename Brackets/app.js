@@ -12,6 +12,9 @@ var db = mongoose.connect('mongodb://localhost/brackets');
 
 // setup models and configurations
 require('./models/user');
+require('./models/round');
+require('./models/match');
+require('./models/tournament');
 require('./models/entry');
 require('./models/secret');
 require('./config/passport');

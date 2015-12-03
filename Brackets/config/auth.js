@@ -9,6 +9,6 @@ module.exports = {
 	{
 		clientID: 576911815793937,
     	clientSecret: "fed773249d02e420cdbe0d686e78ce0b",
-    	callbackURL: "http://localhost/api/auth/facebook/callback"
+    	callbackURL: "http://localhost/api/auth/login/facebook/callback"
 	}
 };
