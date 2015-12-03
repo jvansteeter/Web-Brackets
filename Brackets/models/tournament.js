@@ -65,24 +65,26 @@ tournamentSchema.methods.startTournament = function()
 
 	for(var i = 0; i < this.players.length; i += 2)
 	{
+		console.log("CREATING NEW MATCH");
+
 		var newMatch = new Match();
-		match.tournament_id = this.tournament_id;
-		match.roundNum = roundNum;
-		match.player1 = this.players[i];
+		newMatch.tournament_id = this._id;
+		newMatch.roundNum = roundNum;
+		newMatch.player1 = this.players[i];
 		if((i + 1) > this.players.length)
 		{
-			match.player2 = null;
+			newMatch.player2 = null;
 		}
 		else
 		{
-			match.player2 = player[i + 1];
+			newMatch.player2 = this.players[i + 1];
 		}
 
 		newMatch.save(function(err)
 		{
 			if(err)
 				throw err;
-			firstRound.matchs.push(newMatch);
+			firstRound.matches.push(newMatch._id);
 		});
 	}
 
@@ -91,6 +93,7 @@ tournamentSchema.methods.startTournament = function()
 		if(err)
 			throw err;
 	});
+	this.rounds.push(firstRound._id);
 
 	var numPlayers = this.players.length;
 	if((numPlayers % 2) === 1)
@@ -123,9 +126,8 @@ tournamentSchema.methods.startTournament = function()
 			if(err)
 				throw err;
 		});
+		this.rounds.push(newRound._id);
 	}
-
-	
 }
 
 mongoose.model('Tournament', tournamentSchema);

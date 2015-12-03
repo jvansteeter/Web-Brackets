@@ -3,6 +3,8 @@ var router = express.Router();
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var Tournament = mongoose.model('Tournament');
+var Round = mongoose.model('Round');
+var Match = mongoose.model('Match');
 var Entry = mongoose.model('Entry');
 var Secret = mongoose.model('Secret');
 var jwt = require('express-jwt');
@@ -114,7 +116,23 @@ router.get('/testTournament', function (req, res)
         res.end("OK");
     });
 
+    newTournament.addPlayer("Josh");
+    newTournament.addPlayer("Clayton");
+    newTournament.addPlayer("Macquel");
+    newTournament.addPlayer("Alisha");
+    newTournament.addPlayer("Jared");
     newTournament.startTournament();
+});
+
+router.get('/clearData', function (req, res)
+{
+    console.log("CLEARING DATABASE");
+
+    Tournament.find({}).remove().exec();
+    Round.find({}).remove().exec();
+    Match.find({}).remove().exec();
+
+    res.end("OK");
 });
 
 
