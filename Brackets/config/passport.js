@@ -3,6 +3,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var configAuth = require('./auth');
 
 // used to serialize the user for the session
 passport.serializeUser(function(user, done) 
@@ -43,13 +44,13 @@ passport.use(new LocalStrategy(function (username, password, done)
 
 passport.use(new FacebookStrategy(
 {
-    clientID: 576911815793937,
-    clientSecret: "fed773249d02e420cdbe0d686e78ce0b",
-    callbackURL: "http://localhost/api/auth/facebook/callback"
+    clientID: configAuth.facebook.clientID,
+    clientSecret: configAuth.facebook.clientSecret,
+    callbackURL: configAuth.facebook.callbackURL
 },
 function(token, refreshToken, profile, done) 
 {
-	console.log("I gotta see this: " + profile);
+	console.log("I gotta see this: " + JSON.stringify(profile));
     // asynchronous
     process.nextTick(function() 
     {
@@ -72,9 +73,9 @@ function(token, refreshToken, profile, done)
                 var newUser            = new User();
 
                 // set all of the facebook information in our user model
-                newUser.facebook.id    = profile.id; // set the users facebook id                   
+                newUser.facebook.id    = profile._json.id; // set the users facebook id                   
                 newUser.facebook.token = token; // we will save the token that facebook provides to the user                    
-                newUser.facebook.name  = profile.name.givenName + ' ' + profile.name.familyName; // look at the passport user profile to see how names are returned
+                newUser.facebook.name  = profile._json.name; // look at the passport user profile to see how names are returned
             
                 // save our user to the database
                 newUser.save(function(err) 

@@ -7,7 +7,9 @@ var Secret = mongoose.model('Secret');
 var jwt = require('express-jwt');
 var passport = require('passport');
 
-var SECRET = Secret.local();
+var configAuth = require('../config/auth');
+var SECRET = configAuth.local.secret;
+
 var auth = jwt({secret: SECRET, userProperty: 'payload'});
 
 //
