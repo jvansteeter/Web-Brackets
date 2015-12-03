@@ -7,9 +7,9 @@ var Secret = mongoose.model('Secret');
 var jwt = require('express-jwt');
 var passport = require('passport');
 
+// configure auth
 var configAuth = require('../config/auth');
 var SECRET = configAuth.local.secret;
-
 var auth = jwt({secret: SECRET, userProperty: 'payload'});
 
 //
@@ -17,7 +17,7 @@ var auth = jwt({secret: SECRET, userProperty: 'payload'});
 //
 
 // register a user
-router.post('/users/register', function (req, res) 
+router.post('/auth/register', function (req, res) 
 {
 	console.log("attempting to register a new user");
     
@@ -56,7 +56,7 @@ router.post('/users/register', function (req, res)
 });
 
 // login a user
-router.post('/users/login', function(req, res, next)
+router.post('/auth/login/local', function(req, res, next)
 {
 	if(!req.body.username || !req.body.password)
 	{
@@ -84,13 +84,13 @@ router.post('/users/login', function(req, res, next)
 // Redirect the user to Facebook for authentication.  When complete,
 // Facebook will redirect the user back to the application at
 //     /auth/facebook/callback
-router.get('/auth/facebook', passport.authenticate('facebook'));
+router.get('/auth/login/facebook', passport.authenticate('facebook'));
 
 // Facebook will redirect the user to this URL after approval.  Finish the
 // authentication process by attempting to obtain an access token.  If
 // access was granted, the user will be logged in.  Otherwise,
 // authentication has failed.
-router.get('/auth/facebook/callback',
+router.get('/auth/login/facebook/callback',
 	passport.authenticate('facebook', { successRedirect: '/index.html',
                                       failureRedirect: '/login.html' }));
 

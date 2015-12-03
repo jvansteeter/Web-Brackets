@@ -68,7 +68,7 @@ blogApp.factory('auth', ['$http', '$window', function($http, $window)
 
   auth.register = function(user)
   {
-    return $http.post('api/user/register', user).success(function(data)
+    return $http.post('api/auth/register', user).success(function(data)
     {
       auth.saveToken(data.token);
     });
@@ -76,7 +76,7 @@ blogApp.factory('auth', ['$http', '$window', function($http, $window)
 
   auth.login = function(user)
   {
-    return $http.post('/api/users/login', user).success(function(data)
+    return $http.post('/api/auth/login/local', user).success(function(data)
     {
       auth.saveToken(data.token);
     });
@@ -261,33 +261,6 @@ blogApp.controller('loginControl', function($scope, $window, $http, Credentials,
       });
     };
 
-    $scope.loginFacebook = function()
-    {
-      console.log("login with facebook");
-      var url = "api/auth/facebook";
-      console.log(url);
-      $http.get(url).success(function(data)
-      {
-        console.log("data");
-        if(data.length === 0)
-        {
-          $scope.loginInfo = "Server Error";
-        }
-        else if(data === "Invalid Username")
-          $scope.loginInfo = data;
-        else if(data === "true")
-        {
-          Credentials.setUsername($scope.usernameInput);
-          Credentials.setPassword($scope.passwordInput);
-          $window.location.href = "index.html";
-        }
-        else if(data === "false")
-          $scope.loginInfo = "Invalid Password";
-        else
-          $scope.loginInfo = "Unknown Error";
-      });
-    };
-
     $scope.createUser = function()
     {
       if ($scope.usernameInput === "")
@@ -306,14 +279,10 @@ blogApp.controller('loginControl', function($scope, $window, $http, Credentials,
           "username" : $scope.usernameInput,
           "password" : $scope.passwordInput
       };
-      $http.post(url, data).success(function(data)
+      auth.register(data).success(function(data)
       {
-          if(data === "OK")
-          {
-              $scope.loginInfo = "User created";
-          }
-          else
-              $scope.loginInfo = data;
+        console.log("Successfully registered user");
+        $window.location.href = "index.html";
       });
     }    
 });
