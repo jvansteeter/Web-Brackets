@@ -51,10 +51,76 @@ tournamentSchema.methods.getPlayers = function()
 	return this.players;
 };
 
+tournamentSchema.methods.getRounds = function(callback)
+{
+	console.log("<Getting Rounds>: " + this.rounds);
+
+	Round.find({_id: {$in: this.rounds}}, function (err, roundInfo)
+	{
+		if(err)
+			throw err;
+		if(roundInfo === null)
+		{
+			callback(null);
+			return;
+		}
+		console.log(roundInfo);
+
+		var matchIds = [];//['56623985db60f6af412a15d1','56623985db60f6af412a15d2','56623985db60f6af412a15d3','56623985db60f6af412a15d5','56623985db60f6af412a15d6','56623985db60f6af412a15d8'];
+		for(var i = 0; i < roundInfo.length; i++)
+		{
+			console.log(roundInfo[i].matches);
+			for(var j = 0; j < roundInfo[i].matches.length; j++)
+			{
+				matchIds.push(roundInfo[i].matches[j]);
+			}
+		}
+		console.log("<MatchIds>: " + matchIds);
+
+		Match.find({_id: {$in: matchIds}}, function (err, matchInfo)
+		{
+			if(err)
+			{
+				callback(null)
+			}
+			if(matchInfo === null)
+			{
+				callback(null);
+				return;
+			}
+			console.log("<Matches>: " + matchInfo);
+
+			var result = [];
+			for(var i = 0; i < roundInfo.length; i++)
+			{
+				result.push([]);
+			}
+
+			for(var i = 0; i < matchInfo.length; i++)
+			{
+				var index = matchInfo[i].roundNum - 1;
+				var match = {};
+				match.player1 = matchInfo[i].player1;
+				if('player2' in matchInfo[i])
+				{
+					match.player2 = matchInfo[i].player2;
+				}
+				if('winner' in matchInfo[i])
+				{
+					match.winner = matchInfo[i].winner;
+				}
+				result[index].push(match);
+			}
+			console.log("<Result>: " + JSON.stringify(result));
+			callback(result);
+		});
+	});
+};
+
 // begin the tournament and generate the bracket
 tournamentSchema.methods.startTournament = function()
 {
-	begun = true;
+	this.begun = true;
 	shuffle(this.players);
 
 	// hard code the first round
@@ -84,8 +150,8 @@ tournamentSchema.methods.startTournament = function()
 		{
 			if(err)
 				throw err;
-			firstRound.matches.push(newMatch._id);
 		});
+		firstRound.matches.push(newMatch._id);
 	}
 
 	firstRound.save(function(err)
@@ -118,8 +184,8 @@ tournamentSchema.methods.startTournament = function()
 			{
 				if(err)
 					throw err;
-				newRound.matches.push(newMatch);
 			});
+			newRound.matches.push(newMatch._id);
 		}
 		newRound.save(function(err)
 		{

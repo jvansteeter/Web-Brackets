@@ -6,7 +6,8 @@ var matchSchema = new mongoose.Schema(
 	tournament_id : String,
 	roundNum: Number,
     player1: String,
-    player2: String
+    player2: String,
+    winner: String
 });
 
 mongoose.model('Match', matchSchema);
