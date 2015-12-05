@@ -32,16 +32,16 @@ function shuffle(array)
 }
 
 // add a player to the tournament roster
-tournamentSchema.methods.addPlayer = function(username) 
+tournamentSchema.methods.addPlayer = function(username, callback) 
 {
 	if(!this.begun)
 	{
 		this.players.push(username);
-		return true;
+		callback(true);
 	}
 	else
 	{
-		return false;
+		callback(false);
 	}
 };
 

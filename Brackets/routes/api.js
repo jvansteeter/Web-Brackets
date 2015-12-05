@@ -127,6 +127,44 @@ router.get('/tournament/:tournament_id', function (req, res)
     });
 });
 
+router.post('/tournament/:tournament_id/addPlayer', function (req, res)
+{
+    Tournament.findById(req.params.tournament_id, function (err, tournament)
+    {
+        if(err)
+        {
+            res.sendStatus(400);
+            return;
+        }
+        if(!tournament)
+        {
+            res.sendStatus(404);
+            return;
+        }
+
+        if(!req.body.player)
+        {
+            return res.status(400);
+        }
+        else
+        {
+            tournament.addPlayer(req.body.player, function(success)
+            {
+                if(success)
+                {
+                    res.sendStatus(200);
+                    return;
+                }
+                else
+                {
+                    res.sendStatus(403);
+                    return;
+                }
+            });
+        }
+    });
+});
+
 //------------------------------------------------------------
 //  Test API for blog, dev only, will be deleted
 //------------------------------------------------------------
