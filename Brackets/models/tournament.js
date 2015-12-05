@@ -53,8 +53,6 @@ tournamentSchema.methods.getPlayers = function()
 
 tournamentSchema.methods.getRounds = function(callback)
 {
-	console.log("<Getting Rounds>: " + this.rounds);
-
 	Round.find({_id: {$in: this.rounds}}, function (err, roundInfo)
 	{
 		if(err)
@@ -64,19 +62,16 @@ tournamentSchema.methods.getRounds = function(callback)
 			callback(null);
 			return;
 		}
-		console.log(roundInfo);
 
-		var matchIds = [];//['56623985db60f6af412a15d1','56623985db60f6af412a15d2','56623985db60f6af412a15d3','56623985db60f6af412a15d5','56623985db60f6af412a15d6','56623985db60f6af412a15d8'];
+		// find and query the matchIds of all the found rounds
+		var matchIds = [];
 		for(var i = 0; i < roundInfo.length; i++)
 		{
-			console.log(roundInfo[i].matches);
 			for(var j = 0; j < roundInfo[i].matches.length; j++)
 			{
 				matchIds.push(roundInfo[i].matches[j]);
 			}
 		}
-		console.log("<MatchIds>: " + matchIds);
-
 		Match.find({_id: {$in: matchIds}}, function (err, matchInfo)
 		{
 			if(err)
@@ -88,14 +83,12 @@ tournamentSchema.methods.getRounds = function(callback)
 				callback(null);
 				return;
 			}
-			console.log("<Matches>: " + matchInfo);
-
+			
 			var result = [];
 			for(var i = 0; i < roundInfo.length; i++)
 			{
 				result.push([]);
 			}
-
 			for(var i = 0; i < matchInfo.length; i++)
 			{
 				var index = matchInfo[i].roundNum - 1;
@@ -111,7 +104,6 @@ tournamentSchema.methods.getRounds = function(callback)
 				}
 				result[index].push(match);
 			}
-			console.log("<Result>: " + JSON.stringify(result));
 			callback(result);
 		});
 	});
@@ -131,15 +123,13 @@ tournamentSchema.methods.startTournament = function()
 
 	for(var i = 0; i < this.players.length; i += 2)
 	{
-		console.log("CREATING NEW MATCH");
-
 		var newMatch = new Match();
 		newMatch.tournament_id = this._id;
 		newMatch.roundNum = roundNum;
 		newMatch.player1 = this.players[i];
-		if((i + 1) > this.players.length)
+		if((i + 1) >= this.players.length)
 		{
-			newMatch.player2 = null;
+			newMatch.winner = this.players[i];
 		}
 		else
 		{

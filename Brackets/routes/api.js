@@ -97,39 +97,6 @@ router.get('/auth/login/facebook/callback',
 	passport.authenticate('facebook', { successRedirect: '/index.html',
                                       failureRedirect: '/login.html' }));
 
-// get an item
-router.get('/api/items/:item_id', function (req,res) 
-{
-    // validate the supplied token
-    user = User.verifyToken(req.headers.authorization, function(user) 
-    {
-        if (user) 
-        {
-            // if the token is valid, then find the requested item
-            Item.findById(req.params.item_id, function(err, item) 
-            {
-                if (err) 
-                {
-                    res.sendStatus(403);
-                    return;
-                }
-                        // get the item if it belongs to the user, otherwise return an error
-                if (item.user != user) 
-                {
-                    res.sendStatus(403);
-                    return;
-                }
-                // return value is the item as JSON
-                res.json({item:item});
-            });
-        } 
-        else 
-        {
-            res.sendStatus(403);
-        }
-    });
-});
-
 // get the current state of a tournament in JSON form
 router.get('/tournament/:tournament_id', function (req, res)
 {
@@ -142,7 +109,7 @@ router.get('/tournament/:tournament_id', function (req, res)
         }
         if(tournament === null)
         {
-            res.end("[]");
+            res.sendStatus(404);
             return;
         }
 
@@ -151,67 +118,12 @@ router.get('/tournament/:tournament_id', function (req, res)
         result.date = tournament.date;
         result.begun = tournament.begun;
         result.players = tournament.players;
-        console.log("about to get rounds");
         tournament.getRounds(function (rounds)
         {
             result.rounds = rounds;
             res.end(JSON.stringify(result));
             return;
         });
-
-        
-        /*console.log("roundIds: " + roundIds + "\nroundIds.length=" + roundIds.length);
-        for(var i = 0; i < roundIds.length; i++)
-        {
-            var tempRound = {};
-            tempRound.matches = [];
-            var matchIds = [];
-            /*Round.findById(roundIds[i], function (err, round)
-            {
-                 if(err)
-                {
-                    res.sendStatus(400);
-                    return;
-                }
-                if(round === null)
-                {
-                    res.end("[]");
-                    return;
-                }
-                console.log("<Round>: " + round);
-                tempRound._id = round._id;
-                tempRound.roundNum = round.roundNum;
-                matchIds = round.matches;
-                console.log("<matchIds>: " + matchIds);
-
-                for(var j = 0; j < matchIds.length; j++)
-                {
-                    var tempMatch = {};
-                    Match.findById(matchIds[i], function (err, match)
-                    {
-                         if(err)
-                        {
-                            console.log("There was an error finding the match");
-                            res.sendStatus(400);
-                            return;
-                        }
-                        if(match === null)
-                        {
-                            console.log("No match found");
-                            res.end("[]");
-                            return;
-                        }
-                        console.log("<Match>: " + match);
-                        tempMatch.player1 = match.player1;
-                        tempMatch.player2 = match.player2;
-                        tempMatch.winner = match.winner;
-                        tempRound.matches.push(tempMatch);
-                        console.log("<Results>: " + result);
-                    });
-                }
-                result.rounds.push(tempRound);
-            });
-        }*/
     });
 });
 
