@@ -20,11 +20,13 @@ var userSchema = new mongoose.Schema(
         id: String,
         token: String,
         name: String,
-    }
+    },
+    tournaments_hosted: [],
+    tournaments_played: []
 });
 
 // hash the password
-userSchema.methods.set_password = function(password) 
+userSchema.methods.setPassword = function(password) 
 {
     this.password_hash = bcrypt.hashSync(password, SALT);
 };
@@ -52,21 +54,31 @@ userSchema.statics.generateToken = function(user)
 // Verify the token from a client. Call the callback with a user object if successful or null otherwise.
 userSchema.statics.verifyToken = function(token,cb) 
 {
+    console.log("<Verify Token>: " + token);
     if (!token) 
     {
         cb(null);
         return;
     }
     // decrypt the token and verify that the encoded user id is valid
-    jwt.verify(token, SECRET, function(err, decoded) 
+    var parsedToken = (token.split(" ")[1]);
+    console.log("Parsed Token: " + parsedToken);
+    jwt.verify(parsedToken, SECRET, function(err, decoded) 
     {
+        console.log("<decoded>: " + JSON.stringify(decoded));
         if (!decoded) 
         {
             cb(null);
             return;
         }
-        User.findOne({username: decoded.username},function(err,user) 
+        else
         {
+            cb(decoded);
+            return;
+        }
+        /*User.findOne({username: decoded.username},function(err,user) 
+        {
+
 		    if (err) 
 		    {
 				cb(null);
@@ -75,8 +87,14 @@ userSchema.statics.verifyToken = function(token,cb)
 		    {
 				cb(user);
 		    }
-		});
+		});*/
     });
+};
+
+// add the tournament ID to the list of tournaments hosted
+userSchema.methods.host = function(tournament_id)
+{
+
 };
 
 // add findOrCreate

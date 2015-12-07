@@ -127,7 +127,57 @@ router.get('/tournament/:tournament_id', function (req, res)
     });
 });
 
-router.post('/tournament/:tournament_id/addPlayer', function (req, res)
+// create a new tournament hosted by the user
+// data = {
+//      title:  (title of the tournament)
+//  }
+router.post('/tournament/create', auth, function (req, res)
+{
+    console.log("Attempting to create tournament");
+    if(!req.body.title)
+    {
+        return res.status(400).json({ message: 'Please provide username and title' });
+    }
+
+    User.verifyToken(req.headers.authorization, function (err, decoded)
+    {
+        console.log("Verifying Token");
+        console.log("<decoded>: " + JSON.stringify(decoded));
+        User.find({username: decoded.username}, function (err, user)
+        {
+            if(err)
+            {
+                res.sendStatus(400);
+                return;
+            }
+            if(!user)
+            {
+                res.sendStatus(404);
+                return;
+            }
+
+            var newTournament = new Tournament();
+            newTournament.title = req.body.title;
+            var date = new Date();
+            newTournament.date = date.getMonth() + "-" + date.getDate() + "-" + date.getFullYear() +
+                " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+            newTournament.host = user.username;
+            newTournament.begun = false;
+            newTournament.save(function(err)
+            {
+                if(err)
+                {
+                    res.sendStatus(400);
+                    return;
+                }
+                res.end("OK");
+            });
+        });
+    });
+});
+
+// add a new player string to the identified tournament
+router.post('/tournament/:tournament_id/addplayer', function (req, res)
 {
     Tournament.findById(req.params.tournament_id, function (err, tournament)
     {
@@ -206,6 +256,30 @@ router.get('/clearData', function (req, res)
     res.end("OK");
 });
 
+router.post('/testUser', auth, function (req, res)
+{
+    /*User.find({username: req.body.username}, function (err, user)
+    {
+        if(err)
+        {
+            res.sendStatus(400);
+            return;
+        }
+        if(!user)
+        {
+            res.sendStatus(404);
+            return;
+        }*/
+
+        console.log("<Request>: " + JSON.stringify(req.headers));
+        User.verifyToken(req.headers.authorization, function (err, decoded)
+        {
+            console.log("Successfully tested authenticated user: " + decoded);
+            res.end("OK");
+        });
+    //});
+    
+});
 
 router.post('/createNewPost', auth, function (req, res)
 {
@@ -252,97 +326,5 @@ router.post('/createSecret', function (req, res)
 //------------------------------------------------------------
 // End dev API section
 //------------------------------------------------------------
-
-// get all items for the user
-router.get('/api/items', function (req,res) {
-    // validate the supplied token
-    user = User.verifyToken(req.headers.authorization, function(user) {
-        if (user) {
-            // if the token is valid, find all the user's items and return them
-	    Item.find({user:user.id}, function(err, items) {
-		if (err) {
-		    res.sendStatus(403);
-		    return;
-		}
-		// return value is the list of items as JSON
-		res.json({items: items});
-	    });
-        } else {
-            res.sendStatus(403);
-        }
-    });
-});
-
-// add an item
-router.post('/api/items', function (req,res) {
-    // validate the supplied token
-    // get indexes
-    user = User.verifyToken(req.headers.authorization, function(user) {
-        if (user) {
-            // if the token is valid, create the item for the user
-	    Item.create({title:req.body.item.title,completed:false,user:user.id}, function(err,item) {
-		if (err) {
-		    res.sendStatus(403);
-		    return;
-		}
-		res.json({item:item});
-	    });
-        } else {
-            res.sendStatus(403);
-        }
-    });
-});
-
-// update an item
-router.put('/api/items/:item_id', function (req,res) {
-    // validate the supplied token
-    user = User.verifyToken(req.headers.authorization, function(user) {
-        if (user) {
-            // if the token is valid, then find the requested item
-            Item.findById(req.params.item_id, function(err,item) {
-		if (err) {
-		    res.sendStatus(403);
-		    return;
-		}
-                // update the item if it belongs to the user, otherwise return an error
-                if (item.user != user.id) {
-                    res.sendStatus(403);
-		    return;
-                }
-                item.title = req.body.item.title;
-                item.completed = req.body.item.completed;
-                item.save(function(err) {
-		    if (err) {
-			res.sendStatus(403);
-			return;
-		    }
-                    // return value is the item as JSON
-                    res.json({item:item});
-                });
-	    });
-        } else {
-            res.sendStatus(403);
-        }
-    });
-});
-
-// delete an item
-router.delete('/api/items/:item_id', function (req,res) {
-    // validate the supplied token
-    user = User.verifyToken(req.headers.authorization, function(user) {
-        if (user) {
-            // if the token is valid, then find the requested item
-            Item.findByIdAndRemove(req.params.item_id, function(err,item) {
-		if (err) {
-		    res.sendStatus(403);
-		    return;
-		}
-                res.sendStatus(200);
-            });
-        } else {
-            res.sendStatus(403);
-        }
-    });
-});
 
 module.exports = router;

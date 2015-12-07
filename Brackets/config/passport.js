@@ -50,8 +50,7 @@ passport.use(new FacebookStrategy(
 },
 function(token, refreshToken, profile, done) 
 {
-	console.log("I gotta see this: " + JSON.stringify(profile));
-    // asynchronous
+	// asynchronous
     process.nextTick(function() 
     {
         // find the user in the database based on their facebook id

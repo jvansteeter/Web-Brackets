@@ -6,7 +6,9 @@ var Round = mongoose.model('Round');
 
 var tournamentSchema = new mongoose.Schema(
 {
+	title: String,
     date: String,
+    host: String,
     players: [],
     begun: Boolean,
     rounds: []
@@ -32,16 +34,16 @@ function shuffle(array)
 }
 
 // add a player to the tournament roster
-tournamentSchema.methods.addPlayer = function(username, callback) 
+tournamentSchema.methods.addPlayer = function(username) 
 {
 	if(!this.begun)
 	{
 		this.players.push(username);
-		callback(true);
+		return true;
 	}
 	else
 	{
-		callback(false);
+		return false;
 	}
 };
 

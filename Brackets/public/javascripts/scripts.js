@@ -87,6 +87,20 @@ blogApp.factory('auth', ['$http', '$window', function($http, $window)
     $window.localStorage.removeItem('brackets-token');
   };
 
+  auth.testUser = function(data)
+  {
+    if(auth.isLoggedIn())
+    {
+      var token = auth.getToken();
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+      return $http.post('/api/testUser', data, { headers: { Authorization: 'Bearer '+auth.getToken() }}).success(function(response)
+      {
+        console.log("Test response: " + response);
+      });
+    }
+  };
+
   return auth;
 }]);
 
@@ -96,7 +110,7 @@ blogApp.controller('headerControl', function($scope, Credentials)
   $scope.title = userName + "'s Blog";
 });
 
-blogApp.controller('blogControl', function($scope, $window, $http, Credentials) 
+blogApp.controller('blogControl', function($scope, $window, $http, Credentials, auth) 
 {
   $scope.searchInput = "";
   $scope.title = Credentials.getUsername();
@@ -135,6 +149,38 @@ blogApp.controller('blogControl', function($scope, $window, $http, Credentials)
   });
   posts.push(post1);
   $scope.posts = posts;
+
+//-------------------------------------------------------------------------
+//  Brakcets DEV Section
+//-------------------------------------------------------------------------
+
+  $scope.testUser = function()
+  {
+    var data = {
+        "title": "Test Tournament"
+      };
+
+    auth.testUser(data).success(function(data)
+    {
+      console.log("Successfully tested user");
+    });
+  };
+
+  $scope.createTournament = function()
+  {
+    var data = {
+      "title": "Test Tournament"
+    };
+
+    $http.post('/api/tournament/create', data, { headers: { Authorization: 'Bearer '+auth.getToken() }}).success(function(response)
+    {
+      console.log("Successfully created tournament: " + response);
+    });
+  }
+
+//-------------------------------------------------------------------------
+//  End DEV
+//-------------------------------------------------------------------------
 
   $scope.search = function()
   {
