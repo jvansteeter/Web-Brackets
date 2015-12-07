@@ -82,7 +82,16 @@ blogApp.factory('auth', ['$http', '$window', function($http, $window)
     });
   };
 
-  auth.logOut = function()
+  auth.loginFacebook = function()
+  {
+    return $http.get('/api/auth/login/local').success(function(data)
+    {
+      console.log("<Facebook Data>: " + data);
+      //auth.saveToken(data.token);
+    });
+  };
+
+  auth.logout = function()
   {
     $window.localStorage.removeItem('brackets-token');
   };
@@ -166,6 +175,17 @@ blogApp.controller('blogControl', function($scope, $window, $http, Credentials, 
     });
   };
 
+  $scope.testFacebookUser = function()
+  {
+    console.log("Testing facebook user");
+    console.log("Is logged in");
+
+    return $http.get('/api/testFacebookUser', function(response)
+    {
+      console.log("Test response: " + response);
+    });
+  }
+
   $scope.createTournament = function()
   {
     var data = {
@@ -181,6 +201,14 @@ blogApp.controller('blogControl', function($scope, $window, $http, Credentials, 
 //-------------------------------------------------------------------------
 //  End DEV
 //-------------------------------------------------------------------------
+
+  $scope.logout = function()
+  {
+    auth.logout();
+    console.log("Successfully logged out");
+    $window.location.href = "login.html";
+    
+  };
 
   $scope.search = function()
   {
@@ -304,6 +332,16 @@ blogApp.controller('loginControl', function($scope, $window, $http, Credentials,
       {
         console.log("Successfully logged in");
         $window.location.href = "index.html";
+      });
+    };
+
+    $scope.loginFacebook = function()
+    {
+      console.log("Attempting to login with facebook");
+
+      auth.loginFaceook().success(function(data)
+      {
+        console.log("Successfully logged in using facebook");
       });
     };
 

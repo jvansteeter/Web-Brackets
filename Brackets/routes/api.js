@@ -1,12 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
-var User = mongoose.model('User');
+var User = mongoose.model('User');//require('../models/user.js');
 var Tournament = mongoose.model('Tournament');
 var Round = mongoose.model('Round');
 var Match = mongoose.model('Match');
-var Entry = mongoose.model('Entry');
-var Secret = mongoose.model('Secret');
 var jwt = require('express-jwt');
 var passport = require('passport');
 
@@ -21,14 +19,12 @@ var auth = jwt({secret: SECRET, userProperty: 'payload'});
 
 // register a user
 router.post('/auth/register', function (req, res) 
-{
-	console.log("attempting to register a new user");
-    
+{   
     if(!req.body.username || !req.body.password)
 	{
 		return res.status(400).json({ message: 'Please fill out all fields' });
 	}
-
+    console.log("here");
 	// find or create the user with the given username
     User.findOrCreate({username: req.body.username}, function(err, user, created) 
     {
@@ -36,7 +32,7 @@ router.post('/auth/register', function (req, res)
         {
             // if this username is not taken, then create a user record
             user.name = req.body.name;
-            user.set_password(req.body.password);
+            user.setPassword(req.body.password);
             user.save(function(err) 
             {
 				if (err) 
@@ -73,6 +69,9 @@ router.post('/auth/login/local', function(req, res, next)
 		return next(err); 
 	}
 
+    console.log("<user>: " + user);
+    console.log("<info>: " + info);
+
 	if(user)
 	{
 		return res.json({token: User.generateToken(user.username)});
@@ -93,9 +92,14 @@ router.get('/auth/login/facebook', passport.authenticate('facebook'));
 // authentication process by attempting to obtain an access token.  If
 // access was granted, the user will be logged in.  Otherwise,
 // authentication has failed.
-router.get('/auth/login/facebook/callback',
-	passport.authenticate('facebook', { successRedirect: '/index.html',
-                                      failureRedirect: '/login.html' }));
+/*router.get('/auth/login/facebook/callback', passport.authenticate('facebook'), function (req, res)
+{
+    console.log("According the legend this will get called at callback");
+    console.log("<req>: " + JSON.stringify(req.user));
+});*/
+
+router.get('/auth/login/facebook/callback', passport.authenticate('facebook', { successRedirect: '/index.html',
+                                    failureRedirect: '/login.html' }));
 
 // get the current state of a tournament in JSON form
 router.get('/tournament/:tournament_id', function (req, res)
@@ -139,8 +143,13 @@ router.post('/tournament/create', auth, function (req, res)
         return res.status(400).json({ message: 'Please provide username and title' });
     }
 
-    User.verifyToken(req.headers.authorization, function (err, decoded)
+    User.verifyToken(req.headers.authorization, function (decoded)
     {
+        if(!decoded)
+        {
+            res.sendStatus(401);
+            return;
+        }
         console.log("Verifying Token");
         console.log("<decoded>: " + JSON.stringify(decoded));
         User.find({username: decoded.username}, function (err, user)
@@ -258,28 +267,34 @@ router.get('/clearData', function (req, res)
 
 router.post('/testUser', auth, function (req, res)
 {
-    /*User.find({username: req.body.username}, function (err, user)
+    console.log("<Request>: " + JSON.stringify(req.headers) + "\nBody: " + JSON.stringify(req.body));
+    User.verifyToken(req.headers.authorization, function (decoded)
     {
-        if(err)
-        {
-            res.sendStatus(400);
-            return;
-        }
-        if(!user)
-        {
-            res.sendStatus(404);
-            return;
-        }*/
-
-        console.log("<Request>: " + JSON.stringify(req.headers));
-        User.verifyToken(req.headers.authorization, function (err, decoded)
-        {
-            console.log("Successfully tested authenticated user: " + decoded);
-            res.end("OK");
-        });
-    //});
-    
+        console.log("Successfully tested authenticated user: " + JSON.stringify(decoded));
+        res.end("OK");
+    });
 });
+
+router.get('/testFacebookUser', function (req, res)
+{
+    console.log("<testFacebookUser>");
+    console.log("<Request>: " + JSON.stringify(req.headers) + "\nBody: " + req.user);
+    User.verifyToken(req.headers.authorization, function (decoded)
+    {
+        console.log("Successfully tested authenticated user: " + JSON.stringify(decoded));
+        res.end("OK");
+    });
+});
+
+function isLoggedIn(req, res, next)
+{
+    console.log("isLoggedIn");
+    if (req.isAuthenticated())
+        return next();
+
+    console.log("not logged in");
+    res.redirect('/login.html');
+};
 
 router.post('/createNewPost', auth, function (req, res)
 {

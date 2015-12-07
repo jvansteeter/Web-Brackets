@@ -8,12 +8,14 @@ var configAuth = require('./auth');
 // used to serialize the user for the session
 passport.serializeUser(function(user, done) 
 {
+    //console.log("<Serializing user>: " + user);
     done(null, user.id);
 });
 
 // used to deserialize the user
 passport.deserializeUser(function(id, done) 
 {
+    //console.log("<Deserializing user>");
     User.findById(id, function(err, user) 
     {
         done(err, user);
@@ -22,7 +24,7 @@ passport.deserializeUser(function(id, done)
 
 passport.use(new LocalStrategy(function (username, password, done)
 {
-	console.log("in passport.js");
+	//console.log("in passport.js");
 	User.findOne({ username: username }, function (err, user)
 	{
 		if (err)
@@ -37,7 +39,7 @@ passport.use(new LocalStrategy(function (username, password, done)
 		{
 			return done(null, false, { message: 'Incorrectpassword.' });
 		}
-		console.log("returning user");
+		//console.log("returning user");
 		return done(null, user);
 	});
 }));
@@ -50,7 +52,8 @@ passport.use(new FacebookStrategy(
 },
 function(token, refreshToken, profile, done) 
 {
-	// asynchronous
+	//console.log("I gotta see this: " + JSON.stringify(profile));
+    // asynchronous
     process.nextTick(function() 
     {
         // find the user in the database based on their facebook id
