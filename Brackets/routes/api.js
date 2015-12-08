@@ -10,8 +10,8 @@ var passport = require('passport');
 
 // configure auth
 var configAuth = require('../config/auth');
-var SECRET = configAuth.local.secret;
-var auth = jwt({secret: SECRET, userProperty: 'payload'});
+//var SECRET = configAuth.local.secret;
+//var auth = jwt({secret: SECRET, userProperty: 'payload'});
 
 //
 // API
@@ -104,19 +104,12 @@ router.get('/auth/logout', function (req, res)
 
 // Redirect the user to Facebook for authentication.  When complete,
 // Facebook will redirect the user back to the application at
-//     /auth/facebook/callback
 router.get('/auth/login/facebook', passport.authenticate('facebook'));
 
 // Facebook will redirect the user to this URL after approval.  Finish the
 // authentication process by attempting to obtain an access token.  If
 // access was granted, the user will be logged in.  Otherwise,
 // authentication has failed.
-/*router.get('/auth/login/facebook/callback', passport.authenticate('facebook'), function (req, res)
-{
-    console.log("According the legend this will get called at callback");
-    console.log("<req>: " + JSON.stringify(req.user));
-});*/
-
 router.get('/auth/login/facebook/callback', passport.authenticate('facebook', { successRedirect: '/index.html',
                                     failureRedirect: '/login.html' }));
 
@@ -154,7 +147,7 @@ router.get('/tournament/:tournament_id', function (req, res)
 // data = {
 //      title:  (title of the tournament)
 //  }
-router.post('/tournament/create', auth, function (req, res)
+router.post('/tournament/create', isLoggedIn, function (req, res)
 {
     console.log("Attempting to create tournament");
     if(!req.body.title)
@@ -291,13 +284,6 @@ router.post('/testUser', isLoggedIn, function (req, res)
     res.end("OK");
 });
 
-router.get('/testFacebookUser', isLoggedIn, function (req, res)
-{
-    console.log("<testFacebookUser>");
-    console.log("<Request>: " + JSON.stringify(req.headers) + "\nBody: " + req.user);
-    
-});
-
 function isLoggedIn(req, res, next)
 {
     console.log("isLoggedIn");
@@ -309,7 +295,7 @@ function isLoggedIn(req, res, next)
     res.redirect('/login.html');
 };
 
-router.post('/createNewPost', auth, function (req, res)
+/*router.post('/createNewPost', auth, function (req, res)
 {
     console.log("creating new post");
     
@@ -348,7 +334,7 @@ router.post('/createSecret', function (req, res)
 		}
 		res.end("OK");
 	});
-});
+});*/
 
 
 //------------------------------------------------------------

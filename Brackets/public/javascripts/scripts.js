@@ -124,7 +124,7 @@ blogApp.controller('blogControl', function($scope, $window, $http, Credentials, 
     ]
   };
   var url = "getAllPosts?u=" + Credentials.getUsername() + "&p=" + Credentials.getPassword();
-  console.log(url);
+  /*console.log(url);
   $http.get(url).success(function(data)
   {
     // console.log(data);
@@ -141,7 +141,7 @@ blogApp.controller('blogControl', function($scope, $window, $http, Credentials, 
       };
       posts.push(post);
     }
-  });
+  });*/
   posts.push(post1);
   $scope.posts = posts;
 
@@ -160,17 +160,6 @@ blogApp.controller('blogControl', function($scope, $window, $http, Credentials, 
       console.log("Test response: " + response);
     });
   };
-
-  $scope.testFacebookUser = function()
-  {
-    console.log("Testing facebook user");
-    console.log("Is logged in");
-
-    return $http.get('/api/testFacebookUser', function(response)
-    {
-      console.log("Test response: " + response);
-    });
-  }
 
   $scope.createTournament = function()
   {
@@ -233,16 +222,6 @@ blogApp.controller('loginControl', function($scope, $window, $http, Credentials,
       });
     };
 
-    $scope.loginFacebook = function()
-    {
-      console.log("Attempting to login with facebook");
-
-      auth.loginFaceook().success(function(data)
-      {
-        console.log("Successfully logged in using facebook");
-      });
-    };
-
     $scope.createUser = function()
     {
       if ($scope.usernameInput === "")
@@ -269,7 +248,7 @@ blogApp.controller('loginControl', function($scope, $window, $http, Credentials,
     }    
 });
 
-blogApp.controller('newPostControl', function($scope, $window, $http, Credentials, auth) 
+/*blogApp.controller('newPostControl', function($scope, $window, $http, Credentials, auth) 
 {
   $scope.postTitle = "";
   $scope.tags = "";
@@ -308,7 +287,7 @@ blogApp.controller('newPostControl', function($scope, $window, $http, Credential
       $window.location.href = "index.html";
     });
   };
-});
+});*/
 
 $(document).ready(function(){$('#sidebar').affix({
     offset: {
