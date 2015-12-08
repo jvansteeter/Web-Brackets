@@ -96,20 +96,6 @@ blogApp.factory('auth', ['$http', '$window', function($http, $window)
     $window.localStorage.removeItem('brackets-token');
   };
 
-  auth.testUser = function(data)
-  {
-    if(auth.isLoggedIn())
-    {
-      var token = auth.getToken();
-      var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-      return $http.post('/api/testUser', data, { headers: { Authorization: 'Bearer '+auth.getToken() }}).success(function(response)
-      {
-        console.log("Test response: " + response);
-      });
-    }
-  };
-
   return auth;
 }]);
 
@@ -169,9 +155,9 @@ blogApp.controller('blogControl', function($scope, $window, $http, Credentials, 
         "title": "Test Tournament"
       };
 
-    auth.testUser(data).success(function(data)
+    return $http.post('/api/testUser', data).success(function(response)
     {
-      console.log("Successfully tested user");
+      console.log("Test response: " + response);
     });
   };
 
@@ -204,102 +190,14 @@ blogApp.controller('blogControl', function($scope, $window, $http, Credentials, 
 
   $scope.logout = function()
   {
-    auth.logout();
-    console.log("Successfully logged out");
-    $window.location.href = "login.html";
-    
+    //auth.logout();
+    $https.get('api/auth/logout').success(function (response)
+    {
+      console.log("Successfully logged out: " + response);
+      $window.location.href = "login.html";
+    })
   };
 
-  $scope.search = function()
-  {
-    $scope.posts = [];
-    console.log("searching");
-    var tags = $scope.searchInput.split(' ');
-    var url = "search?u=" + Credentials.getUsername() + "&p=" + Credentials.getPassword();
-    for(var i = 0; i < tags.length; i++)
-    {
-      url += "&q=" + tags[i];
-    }
-    console.log(url);
-    $http.get(url).success(function(data)
-    {
-      // console.log(data);
-      for(var i = 0; i < data.length; i++)
-      {
-        var post = {
-          "author" : data[i]['author'],
-          "title" : data[i]['title'],
-          "date" : data[i]['date'],
-          "tags" : data[i]['tags'],
-          "body" : data[i]['body']
-        };
-        $scope.posts.push(post);
-      }
-    });
-  };
-});
-
-blogApp.controller('myPostsControl', function($scope, $window, $http, Credentials) 
-{
-  $scope.posts = [];
-  $scope.searchInput = "";
-  $scope.title = Credentials.getUsername();
-
-  var url = "getMyPosts?u=" + Credentials.getUsername() + "&p=" + Credentials.getPassword();
-  console.log(url);
-  $http.get(url).success(function(data)
-  {
-    // console.log(data);
-    //var entries = data[0]['entry'];
-    if (data.length === 0)
-    {
-      var post = {
-        "title" : "You Have No Entries",
-        "tags" : ["new", "entry"],
-        "body" : "To create posts click on Create New Post"
-      };
-      $scope.posts.push(post);
-    }
-    for(var i = 0; i < data.length; i++)
-    {
-      var post = {
-        "title" : data[i]['title'],
-        //"date" : data[i]['data'],
-        "tags" : data[i]['tags'],
-        "body" : data[i]['body']
-      };
-      $scope.posts.push(post);
-      //$scope.posts.reverse();
-    }
-  });
-
-  $scope.search = function()
-  {
-    $scope.posts = [];
-    console.log("searching");
-    var tags = $scope.searchInput.split(' ');
-    var url = "searchMyPosts?u=" + Credentials.getUsername() + "&p=" + Credentials.getPassword();
-    for(var i = 0; i < tags.length; i++)
-    {
-      url += "&q=" + tags[i];
-    }
-    console.log(url);
-    $http.get(url).success(function(data)
-    {
-      // console.log(data);
-      for(var i = 0; i < data.length; i++)
-      {
-        var post = {
-          "author" : data[i]['author'],
-          "title" : data[i]['title'],
-          "date" : data[i]['date'],
-          "tags" : data[i]['tags'],
-          "body" : data[i]['body']
-        };
-        $scope.posts.push(post);
-      }
-    });
-  };
 });
 
 blogApp.controller('loginControl', function($scope, $window, $http, Credentials, auth) 

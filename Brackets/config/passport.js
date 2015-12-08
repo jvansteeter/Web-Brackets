@@ -8,23 +8,64 @@ var configAuth = require('./auth');
 // used to serialize the user for the session
 passport.serializeUser(function(user, done) 
 {
-    //console.log("<Serializing user>: " + user);
+    console.log("<Serializing user>: " + user);
     done(null, user.id);
 });
 
 // used to deserialize the user
 passport.deserializeUser(function(id, done) 
 {
-    //console.log("<Deserializing user>");
+    console.log("<Deserializing user>");
     User.findById(id, function(err, user) 
     {
         done(err, user);
     });
 });
 
-passport.use(new LocalStrategy(function (username, password, done)
+passport.use('local-register', new LocalStrategy(function (username, password, done) 
 {
-	//console.log("in passport.js");
+    console.log("Authenticate with local-register");
+    // find a user whose email is the same as the forms email
+    // we are checking to see if the user trying to login already exists
+    User.findOne({ username: username }, function(err, user) 
+    {
+        // if there are any errors, return the error
+        if (err)
+            return done(err);
+
+        // check to see if theres already a user with that email
+        if (user) 
+        {
+            return done(null, false, {message: "username already taken"});
+        } 
+        else 
+        {
+            // if there is no user with that email
+            // create the user
+            var newUser = new User();
+
+            // set the user's local credentials
+            newUser.username = username;
+            console.log("<about to set password>");
+            newUser.setPassword(password); 
+            console.log("<Set password complete>");
+
+            // save the user
+            newUser.save(function(err) 
+            {
+                if (err)
+                    throw err;
+                return done(null, newUser);
+            });
+        }
+
+    });
+
+}));
+
+passport.use('local', new LocalStrategy(function (username, password, done)
+{
+	console.log("Authenticating locally");
 	User.findOne({ username: username }, function (err, user)
 	{
 		if (err)
@@ -44,7 +85,7 @@ passport.use(new LocalStrategy(function (username, password, done)
 	});
 }));
 
-passport.use(new FacebookStrategy(
+passport.use('facebook', new FacebookStrategy(
 {
     clientID: configAuth.facebook.clientID,
     clientSecret: configAuth.facebook.clientSecret,
@@ -52,7 +93,7 @@ passport.use(new FacebookStrategy(
 },
 function(token, refreshToken, profile, done) 
 {
-	//console.log("I gotta see this: " + JSON.stringify(profile));
+	console.log("Authenticating with facebook");
     // asynchronous
     process.nextTick(function() 
     {

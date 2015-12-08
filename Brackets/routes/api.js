@@ -18,7 +18,13 @@ var auth = jwt({secret: SECRET, userProperty: 'payload'});
 //
 
 // register a user
-router.post('/auth/register', function (req, res) 
+router.post('/auth/register', passport.authenticate('local-register', {
+    successRedirect: '/index.html',
+    failureRedirect: '/login.html'
+}));
+
+
+/*router.post('/auth/register', function (req, res) 
 {   
     if(!req.body.username || !req.body.password)
 	{
@@ -52,10 +58,16 @@ router.post('/auth/register', function (req, res)
 		    res.sendStatus("403");
 		}
     });
-});
+});*/
+
+// login a local user using passport
+router.post('/auth/login/local', passport.authenticate('local', {
+    successRedirect: '/index.html',
+    failureRedirect: '/login.html'
+}));
 
 // login a user
-router.post('/auth/login/local', function(req, res, next)
+/*router.post('/auth/login/local', function(req, res, next)
 {
 	if(!req.body.username || !req.body.password)
 	{
@@ -81,7 +93,14 @@ router.post('/auth/login/local', function(req, res, next)
 		return res.status(401).json(info);
 	}
 	})(req, res, next);
-});
+});*/
+
+// logout a user
+router.get('/auth/logout', function (req, res)
+{
+    req.logout();
+    res.redirect('/login.html');
+})
 
 // Redirect the user to Facebook for authentication.  When complete,
 // Facebook will redirect the user back to the application at
@@ -265,30 +284,24 @@ router.get('/clearData', function (req, res)
     res.end("OK");
 });
 
-router.post('/testUser', auth, function (req, res)
+router.post('/testUser', isLoggedIn, function (req, res)
 {
     console.log("<Request>: " + JSON.stringify(req.headers) + "\nBody: " + JSON.stringify(req.body));
-    User.verifyToken(req.headers.authorization, function (decoded)
-    {
-        console.log("Successfully tested authenticated user: " + JSON.stringify(decoded));
-        res.end("OK");
-    });
+    console.log("<SUCCESS>");
+    res.end("OK");
 });
 
-router.get('/testFacebookUser', function (req, res)
+router.get('/testFacebookUser', isLoggedIn, function (req, res)
 {
     console.log("<testFacebookUser>");
     console.log("<Request>: " + JSON.stringify(req.headers) + "\nBody: " + req.user);
-    User.verifyToken(req.headers.authorization, function (decoded)
-    {
-        console.log("Successfully tested authenticated user: " + JSON.stringify(decoded));
-        res.end("OK");
-    });
+    
 });
 
 function isLoggedIn(req, res, next)
 {
     console.log("isLoggedIn");
+    console.log("<User>: " + JSON.stringify(req.user));
     if (req.isAuthenticated())
         return next();
 

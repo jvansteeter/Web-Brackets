@@ -28,7 +28,9 @@ var userSchema = new mongoose.Schema(
 // hash the password
 userSchema.methods.setPassword = function(password) 
 {
-    this.password_hash = bcrypt.hashSync(password, SALT);
+    //this.password_hash = bcrypt.hashSync(password, SALT);
+    console.log("<In setPassword>");
+    this.password_hash = bcrypt.hashSync(password, SALT, null);
 };
 
 // check the password
@@ -52,7 +54,7 @@ userSchema.statics.generateToken = function(user)
 };
 
 // Verify the token from a client. Call the callback with a user object if successful or null otherwise.
-userSchema.statics.verifyToken = function(token,cb) 
+/*userSchema.statics.verifyToken = function(token,cb) 
 {
     console.log("<Verify Token>: " + token);
     if (!token) 
@@ -87,9 +89,9 @@ userSchema.statics.verifyToken = function(token,cb)
 		    {
 				cb(user);
 		    }
-		});*/
+		});
     });
-};
+};*/
 
 // add the tournament ID to the list of tournaments hosted
 userSchema.methods.host = function(tournament_id)
