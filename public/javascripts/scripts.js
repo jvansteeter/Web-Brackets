@@ -167,7 +167,7 @@ blogApp.controller('blogControl', function($scope, $window, $http, Credentials, 
       "title": "Test Tournament"
     };
 
-    $http.post('/api/tournament/create', data, { headers: { Authorization: 'Bearer '+auth.getToken() }}).success(function(response)
+    $http.post('/api/tournament/create', data).success(function(response)
     {
       console.log("Successfully created tournament: " + response);
     });

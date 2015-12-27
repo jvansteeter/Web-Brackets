@@ -131,6 +131,8 @@ router.get('/tournament/:tournament_id', function (req, res)
 
         var result = {};
         result._id = tournament._id;
+        result.title = tournament.title;
+        result.host = tournament.host;
         result.date = tournament.date;
         result.begun = tournament.begun;
         result.players = tournament.players;
@@ -152,53 +154,46 @@ router.post('/tournament/create', isLoggedIn, function (req, res)
     console.log("Attempting to create tournament");
     if(!req.body.title)
     {
-        return res.status(400).json({ message: 'Please provide username and title' });
+        return res.status(400).json({ message: 'Please provide title' });
     }
 
-    User.verifyToken(req.headers.authorization, function (decoded)
+    User.findOne({username: req.user.username}, function (err, user)
     {
-        if(!decoded)
+        console.log("<Found user in the database>: " + user);
+        if(err)
         {
-            res.sendStatus(401);
+            res.sendStatus(400);
             return;
         }
-        console.log("Verifying Token");
-        console.log("<decoded>: " + JSON.stringify(decoded));
-        User.find({username: decoded.username}, function (err, user)
+        if(!user)
+        {
+            res.sendStatus(404);
+            return;
+        }
+
+        var newTournament = new Tournament();
+        newTournament.title = req.body.title;
+        var date = new Date();
+        newTournament.date = date.getMonth() + "-" + date.getDate() + "-" + date.getFullYear() +
+            " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+        newTournament.host = user.username;
+        user.tournaments_hosted.push(newTournament._id);
+        user.save();
+        newTournament.begun = false;
+        newTournament.save(function(err)
         {
             if(err)
             {
                 res.sendStatus(400);
                 return;
             }
-            if(!user)
-            {
-                res.sendStatus(404);
-                return;
-            }
-
-            var newTournament = new Tournament();
-            newTournament.title = req.body.title;
-            var date = new Date();
-            newTournament.date = date.getMonth() + "-" + date.getDate() + "-" + date.getFullYear() +
-                " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-            newTournament.host = user.username;
-            newTournament.begun = false;
-            newTournament.save(function(err)
-            {
-                if(err)
-                {
-                    res.sendStatus(400);
-                    return;
-                }
-                res.end("OK");
-            });
+            res.end("OK");
         });
     });
 });
 
 // add a new player string to the identified tournament
-router.post('/tournament/:tournament_id/addplayer', function (req, res)
+router.post('/tournament/:tournament_id/addplayer', isLoggedIn, function (req, res)
 {
     Tournament.findById(req.params.tournament_id, function (err, tournament)
     {
@@ -294,48 +289,6 @@ function isLoggedIn(req, res, next)
     console.log("not logged in");
     res.redirect('/login.html');
 };
-
-/*router.post('/createNewPost', auth, function (req, res)
-{
-    console.log("creating new post");
-    
-    var newEntry = new Entry();
-    newEntry.author = req.body.author;
-    newEntry.title = req.body.title;
-    newEntry.date = req.body.date;
-    newEntry.tags = req.body.tags;
-    newEntry.body = req.body.body;
-
-    newEntry.save(function(err) 
-    {
-        if (err)
-        {
-        	res.sendStatus("500");
-			return;
-        }
-        res.end("OK");
-    });
-});
-
-router.post('/createSecret', function (req, res)
-{
-	console.log("creating new secret");
-
-	var newSecret = new Secret();
-	newSecret._id = req.body._id;
-	newSecret.secret = req.body.secret;
-
-	newSecret.save(function(err)
-	{
-		if (err)
-		{
-			res.sendStatus("500");
-			return;
-		}
-		res.end("OK");
-	});
-});*/
-
 
 //------------------------------------------------------------
 // End dev API section
